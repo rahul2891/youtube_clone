@@ -1,5 +1,6 @@
 import { createError } from '../error.js';
 import User from '../models/User.js'
+import Video from '../models/Video.js';
 
 export const update = async (req, res, next) => {
     if(req.params.id === req.user.id){
@@ -49,7 +50,7 @@ export const getUser = async (req, res, next) => {
 
 export const subscribe = async (req, res, next) => {
     try{
-        await User.findById(req.params.id, {
+        await User.findByIdAndUpdate(req.params.id, {
             $push: { subscribedUsers: req.params.id },
         });
         await User.findByIdAndUpdate(req.params.id, {
@@ -64,7 +65,7 @@ export const subscribe = async (req, res, next) => {
 
 export const unSubscribe = async (req, res, next) => {
     try{
-        await User.findById(req.params.id, {
+        await User.findByIdAndUpdate(req.params.id, {
             $pull: { subscribedUsers: req.params.id },
         });
         await User.findByIdAndUpdate(req.params.id, {
@@ -78,8 +79,14 @@ export const unSubscribe = async (req, res, next) => {
 }
 
 export const like = async (req, res, next) => {
+    const id = req.user.id
+    const videoId = req.params.videoId
     try{
-
+        await Video.findByIdAndUpdate(videoId, {
+            $addToSet: {likes: id},
+            $pull: {dislikes: id}
+        })
+        res.status(200).json("the video has been likes!")
     }catch(err){
         next(err)
     }
@@ -87,8 +94,14 @@ export const like = async (req, res, next) => {
 }
 
 export const dislike = async (req, res, next) => {
+    const id = req.user.id
+    const videoId = req.params.videoId
     try{
-
+        await Video.findByIdAndUpdate(videoId, {
+            $addToSet: {dislikes: id},
+            $pull: {likes: id}
+        })
+        res.status(200).json("the video has been dislikes!")
     }catch(err){
         next(err)
     }
