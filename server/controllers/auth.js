@@ -7,6 +7,15 @@ import jwt from "jsonwebtoken"
 export const signup = async (req, res, next) => {
     console.log(req.body)
     try{
+        const existingUser = await User.findOne({ email: req.body.email });
+
+        if (existingUser) {
+            // If user already exists, throw an error indicating duplication
+            const error = new Error('User already exists');
+            error.statusCode = 409; // 409: Conflict status code for resource duplication
+            throw error;
+        }
+
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(req.body.password, salt);
         const newUser = new User({...req.body, password: hash})

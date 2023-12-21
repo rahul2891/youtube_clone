@@ -88,21 +88,26 @@ const Menu = ({ darkMode, setDarkMode }) => {
         <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
           <Logo>
             <Img src={LamaTube} />
-            LamaTube
+            YouTube
           </Logo>
         </Link>
         <Item>
           <HomeIcon />
           Home
         </Item>
+        <Link to="trends" style={{textDecoration:"none", color: "inherit"}}>
         <Item>
           <ExploreOutlinedIcon />
           Explore
         </Item>
+        </Link>
+        <Link to="subscriptions" style={{textDecoration:"none", color: "inherit"}}>
+
         <Item>
           <SubscriptionsOutlinedIcon />
           Subscriptions
         </Item>
+        </Link>
         <Hr />
         <Item>
           <VideoLibraryOutlinedIcon />
