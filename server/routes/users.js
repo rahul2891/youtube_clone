@@ -1,7 +1,14 @@
 import express from "express";
-import { deleteUser, dislike, getUser, like, subscribe, unSubscribe, update } from "../controllers/user.js";
+import {
+  update,
+  deleteUser,
+  getUser,
+  subscribe,
+  unsubscribe,
+  like,
+  dislike,
+} from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
-//import { test } from "../controllers/user.js";
 
 const router = express.Router()
 
@@ -21,7 +28,7 @@ router.put("/sub/:id", verifyToken, subscribe)
 
 
 //unsubscribe a user
-router.put("/unsub/:id", verifyToken, unSubscribe)
+router.put("/unsub/:id", verifyToken, unsubscribe)
 
 
 //like a video

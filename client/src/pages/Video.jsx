@@ -112,6 +112,12 @@ const Subscribe = styled.button`
   cursor: pointer;
 `;
 
+const VideoFrame = styled.video`
+  max-height: 720px;
+  width: 100%;
+  object-fit: cover;
+`;
+
 const Video = () => {
   const { currentUser } = useSelector((state) => state.user);
   const {currentVideo} = useSelector((state) => state.video); 
@@ -125,7 +131,7 @@ const Video = () => {
   useEffect(() => {
     const fetchData = async () => {
       const videoRes = await axios.get(`/api/videos/find/${path}`);
-      const channelRes = await axios.get(`/api/users/find/${videoRes.userId}`)
+      const channelRes = await axios.get(`/api/users/find/${videoRes.data.userId}`)
       setChannel(channelRes.data);
       dispatch(fetchSuccess(videoRes.data));
     };
@@ -133,11 +139,16 @@ const Video = () => {
   }, [path, dispatch]);
 
   const handleLike = async () => {
-    if (currentVideo) { 
-      await axios.put(`api/users/like/${currentVideo._id}`);
-    dispatch(like(currentUser._id));
-  }
+    try {
+      if (currentVideo) { 
+        await axios.put(`api/users/like/${currentVideo._id}`);
+        dispatch(like(currentUser._id));
+      }
+    } catch (error) {
+      console.error('Failed to like video:', error);
+    }
   };
+
   const handleDislike = async () => {
     if (currentVideo) { 
       await axios.put(`api/users/dislike/${currentVideo._id}`);
@@ -146,6 +157,10 @@ const Video = () => {
   };
 
   const handleSub = async () => {
+    if (!channel || !channel._id) {
+      return;
+    }
+
     currentUser.subscribedUsers.includes(channel._id)
    ? await axios.put(`api/users/unsub/${channel._id}`)
    : await axios.put(`api/users/sub/${channel._id}`);
@@ -155,16 +170,8 @@ const Video = () => {
   return (
     <Container>
       <Content>
-        <VideoWrapper>
-          <iframe
-            width="100%"
-            height="720"
-            src="https://www.youtube.com/embed/k3Vfj-e1Ma4"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullscreen
-          ></iframe>
+      <VideoWrapper>
+          <VideoFrame src={currentVideo?.videoUrl} controls />
         </VideoWrapper>
         <Title>{currentVideo?.title}</Title>
         <Details>
@@ -196,11 +203,12 @@ const Video = () => {
               </Description>
             </ChannelDetail>
           </ChannelInfo>
-          <Subscribe onClick={handleSub}>{currentUser.subscribedUsers.includes(channel._id) ? "SUBSCRIBED" : "SUBSCRIBE"}</Subscribe>
+          <Subscribe onClick={handleSub}>{currentUser?.subscribedUsers.includes(channel?._id) ? "SUBSCRIBED" : "SUBSCRIBE"}</Subscribe>
         </Channel>
         <Hr />
-        <Comments/>
+        <Comments videoId={currentVideo?._id} />
       </Content>
+      <Recommendation tags={currentVideo?.tags} />
       {/* <Recommendation>
         <Card type="sm"/>
         <Card type="sm"/>
